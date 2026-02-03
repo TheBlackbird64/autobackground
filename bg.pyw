@@ -1,5 +1,5 @@
+import subprocess
 from svgwrite import *
-from cairosvg import *
 from datetime import datetime
 import ctypes
 import os
@@ -115,7 +115,18 @@ def generer_image():
         x += cote
     
     draw.save()
-    svg2png(url=filename + ".svg", write_to = filename + ".png")
+    subprocess.run(
+    [
+        r"C:\Program Files\Inkscape\bin\inkscape",
+        "bg.svg",
+        "--export-type=png",
+        "--export-filename=bg.png"
+    ],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL,
+    creationflags=subprocess.CREATE_NO_WINDOW
+    )
+    
     return filename + ".png"
 
 
