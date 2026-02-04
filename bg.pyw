@@ -1,6 +1,6 @@
-import subprocess
 from svgwrite import *
 from datetime import datetime
+from dotenv import dotenv_values
 import ctypes
 import os
 import random
@@ -8,20 +8,25 @@ import pyautogui
 import math
 import colorsys
 import time
+import subprocess
+
+config = {
+    **dotenv_values(".env")
+}
 
 # Variables
-IMG_W, IMG_H = pyautogui.size()
-filename = "bg"
-cote = 50
-repartition = 15 # plus c'est grand plus la répartition est grande
-cols = [i for i in range(0, 360, 30)]
+COLORS = [i for i in range(0, 360, 30)]
+
+FILENAME = config.get("FILENAME", "bg")
+COTE = int(config.get("COTE", 50))
+REPARTITION = int(config.get("REPARTITION", 15))
 
 # Variables calculés
-h = (cote**2 - (cote/2)**2)**0.5 # hauteur
+IMG_W, IMG_H = pyautogui.size()
+h = (COTE**2 - (COTE/2)**2)**0.5 # hauteur
 
 
 def changer_fond_ecran(chemin_image):
-    # Note: fonctionne uniquement sous windows
     
     chemin_absolu = os.path.abspath(chemin_image)
     
@@ -29,10 +34,7 @@ def changer_fond_ecran(chemin_image):
         print("Erreur : fichier non trouvé.")
         return
 
-    if ctypes.windll.user32.SystemParametersInfoW(20, 0, chemin_absolu, 3):
-        pass
-        #print("Fond d'écran changé avec succès.")
-    else:
+    if not ctypes.windll.user32.SystemParametersInfoW(20, 0, chemin_absolu, 3):
         print("Erreur lors du changement de fond d'écran.")
 
 
@@ -40,9 +42,8 @@ def generer_image():
     now = datetime.now()
     hour = now.hour
     minute = now.minute
-    second = now.second
     
-    draw = Drawing(filename + ".svg", size=(IMG_W, IMG_H))
+    draw = Drawing(FILENAME + ".svg", size=(IMG_W, IMG_H))
     draw.add(draw.rect(insert=(0, 0), size=(IMG_W, IMG_H), fill="#FFFFFF"))
     
     start = 0
@@ -71,7 +72,7 @@ def generer_image():
         side = False
         prob_col = 0.2
         prob_hue = 0.13
-        prob_side = round(dist(x, y)/repartition)+1
+        prob_side = round(dist(x, y)/REPARTITION)+1
         
         if random.randint(0, prob_side) == 0:
             side = True
@@ -95,7 +96,7 @@ def generer_image():
         
         if not side:
             if random.random() < prob_hue:
-                hue = cols[hour % 12]
+                hue = COLORS[hour % 12]
                 r, g, b = hsv_to_rgb(hue/360, s/100, 1)
         
         
@@ -103,18 +104,22 @@ def generer_image():
     
     
     x = 0
-    while x < IMG_W + cote:
+    while x < IMG_W + COTE:
         y = 0
         while y < IMG_H + h:
-            start_x = x-cote/2 if round(y/h) % 2 == 0 else x
+            start_x = x-COTE/2 if round(y/h) % 2 == 0 else x
             
-            draw.add(draw.polygon([(start_x, y), (start_x+cote+1, y), (start_x+cote/2, y+h+1)], fill=color(x, y)))
-            draw.add(draw.polygon([(start_x, y-1), (start_x+cote/2+1, y+h+1), (start_x-cote/2-1, y+h+1)], fill=color(x, y)))
+            draw.add(draw.polygon([(start_x, y), (start_x+COTE+1, y), (start_x+COTE/2, y+h+1)], fill=color(x, y)))
+            draw.add(draw.polygon([(start_x, y-1), (start_x+COTE/2+1, y+h+1), (start_x-COTE/2-1, y+h+1)], fill=color(x, y)))
             
             y += h
-        x += cote
+        x += COTE
     
     draw.save()
+    convert_to_png()
+    return FILENAME + ".png"
+
+def convert_to_png():
     subprocess.run(
     [
         r"C:\Program Files\Inkscape\bin\inkscape",
@@ -126,8 +131,6 @@ def generer_image():
     stderr=subprocess.DEVNULL,
     creationflags=subprocess.CREATE_NO_WINDOW
     )
-    
-    return filename + ".png"
 
 
 # declencheur, chaque minute -> update
