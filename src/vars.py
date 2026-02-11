@@ -6,7 +6,7 @@ class Vars:
 
     # config variables
     SHAPE = config.get("SHAPE", "triangle")
-    FILENAME = config.get("FILENAME", "bg")
+    FILENAME = 'generated/' + config.get("FILENAME", "bg")
     COTE = int(config.get("COTE", 50))
     REPARTITION = int(config.get("REPARTITION", 15))
     PROB_GREY1 = float(config.get("PROB_GREY1", 0.2))

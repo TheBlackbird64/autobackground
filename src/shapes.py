@@ -50,7 +50,7 @@ class Hexagon(Shapes):
             while y < Vars.IMG_H + h:
                 start_x = x if round(y/(h/2)) % 2 == 0 else x + Vars.COTE + tiny_cote
                 
-                draw.add(draw.polygon([(start_x, y), (start_x+Vars.COTE, y), (start_x+Vars.COTE+tiny_cote, y+h/2), (start_x+Vars.COTE, y+h), (start_x, y+h), (start_x-tiny_cote, y+h/2)], fill=function_color(x, y)))
+                draw.add(draw.polygon([(start_x, y), (start_x+Vars.COTE+1, y), (start_x+Vars.COTE+tiny_cote+1, y+h/2), (start_x+Vars.COTE+1, y+h+1), (start_x, y+h+1), (start_x-tiny_cote, y+h/2)], fill=function_color(x, y)))
                 
                 y += h/2
             x += Vars.COTE * 3
