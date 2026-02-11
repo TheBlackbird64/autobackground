@@ -4,8 +4,7 @@ import time
 
 def main():
     while True:
-        #System.changer_fond_ecran(Generator.generer_image())
-        Generator.generer_image()
+        System.changer_fond_ecran(Generator.generer_image())
         break
         time.sleep(60)
 

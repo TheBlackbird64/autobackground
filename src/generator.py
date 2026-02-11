@@ -1,4 +1,4 @@
-from svgwrite import *
+from svgwrite import Drawing
 from datetime import datetime
 from system import System
 from vars import Vars
@@ -24,12 +24,14 @@ class Generator:
         if Vars.SHAPE == "hexagon":
             from shapes import Hexagon
             return Hexagon
+        
+        raise ValueError(f"Invalid shape: {Vars.SHAPE}")
 
     @staticmethod
     def generer_image():
         now = datetime.now()
-        hour = 12#now.hour
-        minute = 30#now.minute
+        hour = now.hour
+        minute = now.minute
         
         draw = Drawing(Vars.FILENAME + ".svg", size=(Vars.IMG_W, Vars.IMG_H))
         draw.add(draw.rect(insert=(0, 0), size=(Vars.IMG_W, Vars.IMG_H), fill="#FFFFFF"))
@@ -57,7 +59,7 @@ class Generator:
             return int(r * 255), int(g * 255), int(b * 255)
         
         def color(x, y):
-            side = False
+            side = False # False = light, True = dark
             prob_side = round(dist(x, y)/Vars.REPARTITION)+1
             
             if random.randint(0, prob_side) == 0:
@@ -68,11 +70,10 @@ class Generator:
                 side = not side
             
             s = 0
-            if random.random() < Vars.PROB_COL:
-                s += 50
-            elif random.random() < Vars.PROB_COL*2:
-                s += 100
-            
+            if random.random() < Vars.PROB_GREY1:
+                s = 50
+                if random.random() < Vars.PROB_GREY2:
+                    s = 100
             
             if side:
                 grey = round((s/100)*10 + 10)
@@ -80,12 +81,11 @@ class Generator:
                 grey = round(245 - (s/100)*10)
             r, g, b = grey, grey, grey
             
-            if not side:
-                if random.random() < Vars.PROB_HUE:
-                    hue = Vars.COLORS[hour % 12]
-                    r, g, b = hsv_to_rgb(hue/360, s/100, 1)
-                    print(r, g, b)
-            
+            prob = Vars.PROB_HUE1 if not side else Vars.PROB_HUE_COEF_BLACK_SIDE * Vars.PROB_HUE1
+            if random.random() < prob:
+                s = 50 if random.random() < Vars.PROB_HUE2 else 100
+                hue = Vars.COLORS[hour % 12]
+                r, g, b = hsv_to_rgb(hue/360, s/100, 1)
             
             return f"rgb({r}, {g}, {b})"
         

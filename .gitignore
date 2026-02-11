@@ -5,6 +5,7 @@ bg.svg
 
 .env
 
+.venv/
 .vscode/
 
 **/__pycache__/
