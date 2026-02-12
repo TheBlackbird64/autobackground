@@ -1,9 +1,18 @@
 from dotenv import dotenv_values
 import pyautogui
+import os
 
 class Vars:
-    config = {**dotenv_values(".env")}
 
+    path_to_dotenv = os.path.abspath(os.path.dirname(__file__))
+
+    if os.path.exists(path_to_dotenv + "/.env"):
+        path_to_dotenv += "/.env"
+    else:
+        path_to_dotenv += "/../.env"
+
+    config = {**dotenv_values(path_to_dotenv)}
+    
     # config variables
     SHAPE = config.get("SHAPE", "triangle")
     DIRNAME = config.get("DIRNAME", "generated")
